@@ -21,7 +21,7 @@
 <p>(The time defaults to your computer's timezone)</p>
 <label>
 Wrong Timezone?: 
-<input name="timezone" list="timezones"> 
+<select name="timezone" id="timezones" list="timezones"> 
 </label>
 <input type="hidden" name="e" id="e_query">
 <input type="submit" value="Update Timezone" />
@@ -38,6 +38,7 @@ const fixed = new Date("2020/01/01 00:00:00Z")
 const urlParams = new URLSearchParams(window.location.search);
 const event_sqid = urlParams.get('e');
 const timezone_param = urlParams.get('timezone') ?? Intl.DateTimeFormat().resolvedOptions().timeZone
+const user_locale = Intl.DateTimeFormat().resolvedOptions().locale 
 const parsed = sqids.decode(event_sqid)
 const number = parsed[0]
 const event_date = new Date(fixed.getTime() + (number * 60 * 1000))
@@ -46,22 +47,26 @@ var e_query_input = document.getElementById('e_query')
 e_query_input.value = event_sqid
 var node = document.getElementById('node-id');
 var newNode = document.createElement('p');
-newNode.appendChild(document.createTextNode(other_date + " " + timezone_param));
+const formatted_date = new Intl.DateTimeFormat(user_locale, {
+    dateStyle: 'full',
+    timeStyle: 'long',
+    timeZone: timezone_param,
+  }).format(event_date)
+newNode.appendChild(document.createTextNode(formatted_date + " " + timezone_param));
 node.appendChild(newNode);
-
-
-
-</script>
-
-<script>
 var aryIanaTimeZones = Intl.supportedValuesOf('timeZone');
 var timezone_datalist_node = document.getElementById("timezones")
 aryIanaTimeZones.forEach((timeZone) => {
          var option = document.createElement('option');
+         if (timezone_param == timeZone) {
+           option.setAttribute("selected", true)
+         }
         option.value = timeZone;
+        option.innerHTML = timeZone;
         timezone_datalist_node.appendChild(option);
     }
 );
-
 </script>
+
+
 </html>
