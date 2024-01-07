@@ -34,7 +34,7 @@ Wrong Timezone?:
 </datalist>
 <script>
 const sqids = new Sqids()
-const fixed = new Date("2020-01-01 00:00:00Z")
+const fixed = new Date("2020/01/01 00:00:00Z")
 const urlParams = new URLSearchParams(window.location.search);
 const event_sqid = urlParams.get('e');
 const timezone_param = urlParams.get('timezone') ?? Intl.DateTimeFormat().resolvedOptions().timeZone
