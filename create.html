@@ -13,17 +13,16 @@
 
 
 <body>
-<div id="node-id">
-</div>
+<h1>Let's meet at:</h1>
 <div>
 Date:<input id="date" type="date" name="task_date" onchange="handler()"/>
 Time:<input id="time" type="time" name="task_time" onchange="handler()"/>
-<div id="timezone"></div>
+<select name="timezone" id="timezones" list="timezones" onchange="handler()"></select>
+</div>
+<div id="node-id">
 </div>
 <hr>
 <small>Made with ❤️ by <a href="https://erikarow.land">Erika Rowland</a></small>
-<datalist id="timezones">
-</datalist>
 <script>
 var here = new Date();
 var date_node = document.getElementById("date"),
@@ -33,14 +32,35 @@ here.setMinutes(here.getMinutes() - here.getTimezoneOffset());
 date_node.value = here.toISOString().slice(0,10)
 time_node.value = here.toISOString().slice(11,16)
 
+const urlParams = new URLSearchParams(window.location.search);
+const timezone_param = urlParams.get('timezone') ?? Intl.DateTimeFormat().resolvedOptions().timeZone
+var aryIanaTimeZones = Intl.supportedValuesOf('timeZone');
+var timezone_datalist_node = document.getElementById("timezones")
+aryIanaTimeZones.forEach((timeZone) => {
+         var option = document.createElement('option');
+         if (timezone_param == timeZone) {
+           option.setAttribute("selected", true)
+         }
+        option.value = timeZone;
+        option.innerHTML = timeZone;
+        timezone_datalist_node.appendChild(option);
+    }
+);
 
 handler();
 
 function handler(){
 var date = document.getElementById("date").value,
-    time = document.getElementById("time").value
+    time = document.getElementById("time").value,
+    timezone = document.getElementById("timezones").value
 
-const now = new Date(date + " " + time)
+
+console.log(timezone);
+const longOffsetFormatter = new Intl.DateTimeFormat("en-US", {timeZone: timezone,timeZoneName: "longOffset"});
+const longOffsetString = longOffsetFormatter.format(new Date("2020/01/01 00:00:00Z"));
+const gmtOffset = longOffsetString.split('GMT')[1];
+// const now = new Date(new Date(date + " " + time).toLocaleString('en', {timeZone: timezone})) 
+const now = new Date(date + " " + time + gmtOffset)
 const sqids = new Sqids()
 const fixed = new Date("2020-01-01 00:00:00Z")
 console.log(now);
@@ -53,23 +73,9 @@ var newNode = document.createElement('p');
 newNode.appendChild(document.createTextNode("https://" + window.location.hostname +"/?e=" + event_sqid));
 node.innerHTML = newNode.innerHTML;
 
-var timezone_node = document.getElementById('timezone')
-timezone_node.innerHTML = Intl.DateTimeFormat().resolvedOptions().timeZone
-
 }
 
 
-</script>
-
-<script>
-var aryIanaTimeZones = Intl.supportedValuesOf('timeZone');
-var timezone_datalist_node = document.getElementById("timezones")
-aryIanaTimeZones.forEach((timeZone) => {
-         var option = document.createElement('option');
-        option.value = timeZone;
-        timezone_datalist_node.appendChild(option);
-    }
-);
 
 </script>
 </html>
